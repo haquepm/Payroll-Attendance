@@ -1,0 +1,1 @@
+*{box-sizing:border-box}body{margin:0}input,select,button{background:#0b1c28;color:#e8eef5;border:1px solid #36515f;border-radius:7px;padding:8px;margin:5px}button{cursor:pointer}button:disabled{opacity:.4;cursor:not-allowed}h1{margin:8px 0}h2{font-size:20px}
