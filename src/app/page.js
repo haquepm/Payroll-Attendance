@@ -16,7 +16,7 @@ export default function Home(){
  useEffect(()=>{refreshMaster();},[]);
  const sites=[...new Set(report.map(x=>x.site).filter(Boolean))];
  const filtered=useMemo(()=>report.filter(x=>(!from||x.date>=from)&&(!to||x.date<=to)&&(site==="All sites"||x.site===site)&&(person==="All employees"||x.name===person)),[report,from,to,site,person]);
- const shortages=filtered.filter(x=>x.status==="Shortage"&&x.shortage>10),total=shortages.reduce((a,x)=>a+x.shortage,0);
+ const shortages=filtered.filter(x=>x.status==="Shortage"&&x.shortage>10&&(()=>{const [y,m,d]=String(x.date).split("-").map(Number);return new Date(y,m-1,d).getDay()!==0;})()),total=shortages.reduce((a,x)=>a+x.shortage,0);
  const shortageDates=[...new Set(shortages.map(x=>x.date))].sort();
  const shortageMatrix=(()=>{const map=new Map();shortages.forEach(x=>{const key=String(x.staff_id||norm(x.name));if(!map.has(key))map.set(key,{staff_id:x.staff_id||"—",name:x.name,sites:new Set(),hours:{}});const row=map.get(key);if(x.site)row.sites.add(x.site);row.hours[x.date]=(row.hours[x.date]||0)+x.shortage;});return [...map.values()].map(x=>({...x,site:[...x.sites].join(", ")||"—"})).sort((a,b)=>a.name.localeCompare(b.name));})();
  const shortagePageSize=8, shortagePageCount=Math.max(1,Math.ceil(shortageMatrix.length/shortagePageSize)), visibleShortageMatrix=shortageMatrix.slice(shortagePage*shortagePageSize,(shortagePage+1)*shortagePageSize);
