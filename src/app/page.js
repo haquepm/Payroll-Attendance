@@ -85,7 +85,7 @@ export default function Home(){
     const spacer=ws.addRow([]);spacer.height=7;
   });
   const firstTotalRow=2,lastTotalRow=ws.rowCount;
-  const grand=ws.addRow(salaryColumns.map((h,i)=>i===1?"GRAND TOTAL":i===2?"ALL SITES":salaryNumericColumns.includes(i+1)?{formula:`SUM(${ws.getColumn(i+1).letter}2:${ws.getColumn(i+1).letter}${lastTotalRow})`}:null));
+  const grand=ws.addRow(salaryColumns.map((h,i)=>i===1?"GRAND TOTAL":i===2?"ALL SITES":salaryNumericColumns.includes(i+1)?{formula:`SUM(${subtotalRows.map(n=>ws.getColumn(i+1).letter+n).join(",")})`}:null));
   grand.font={bold:true,color:{argb:"FFFFFFFF"}};grand.fill={type:"pattern",pattern:"solid",fgColor:{argb:"FF1B3542"}};grand.height=26;
   ws.eachRow((row,n)=>{if(n>1)row.eachCell({includeEmpty:true},c=>{c.border={bottom:{style:"hair",color:{argb:"FFD5DEE3"}}};c.alignment={vertical:"middle",wrapText:true};});});
   const buf=await wb.xlsx.writeBuffer(),url=URL.createObjectURL(new Blob([buf],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"})),a=document.createElement("a");a.href=url;a.download="Crescent-Salary-Bill.xlsx";a.click();URL.revokeObjectURL(url);
