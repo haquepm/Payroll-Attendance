@@ -35,9 +35,9 @@ export default function Home(){
  const salaryColumns=["S.N.","Staff Name","Site","Designation","Date of Joining","Total CTC","Basic","DA","HRA","Salary Payable","Payable Days","Absent Days","Expense Claim","Allowance","System Overtime","Total Salary Payable","Loan Instalment","PF","PT","Food Expense","ESI","System Fine","Advance","Total Deduction","Net Payable Amount"];
  const salaryGet=(r,...keys)=>{for(const k of keys){const v=r.raw_data?.values?.[k];if(v!==undefined&&v!==null&&String(v).trim()!=="")return v;}return "";};
  const salaryNum=v=>{const n=Number(String(v??"").replace(/,/g,"").trim());return Number.isFinite(n)?n:0;};
- const salarySiteOf=r=>String(salaryGet(r,"Site")||"Unassigned").trim()||"Unassigned";
+ const salarySiteOf=r=>String(salaryGet(r,"Site","Project Site","Work Site")||"Unassigned").trim()||"Unassigned";
  const salarySiteOrder=["Head Office","Geojit","SOTI","Market","KBC06","BMH","Canton Infra","Cenomi","General","INOA","Unassigned"];
- const salarySourceRows=payrollRows.filter(r=>!salaryBatch||r.batch_id===salaryBatch);
+ const salarySourceRows=payrollRows.filter(r=>(!salaryBatch||r.batch_id===salaryBatch)&&(()=>{const name=String(r.raw_data?.values?.["Staff Name"]??r.raw_data?.values?.["Employee Name"]??r.raw_data?.values?.["Name"]??r.employee_name_source??"").trim();return !!name&&!/\b(grand\s*total|site\s*total|unassigned\s*total|total)\b/i.test(name);})());
  const salarySites=[...new Set(salarySourceRows.map(salarySiteOf))].sort((a,b)=>{const ai=salarySiteOrder.indexOf(a),bi=salarySiteOrder.indexOf(b);return (ai<0?999:ai)-(bi<0?999:bi)||a.localeCompare(b);});
  const salaryFilteredRows=salarySourceRows.filter(r=>salarySite==="All sites"||salarySiteOf(r)===salarySite);
  const salaryMappedRows=salaryFilteredRows.map(r=>{const v=r.raw_data?.values||{};
@@ -53,7 +53,7 @@ export default function Home(){
     "Total CTC":salaryGet(r,"Total CTC"),"Basic":salaryGet(r,"Basic"),"DA":salaryGet(r,"DA"),"HRA":salaryGet(r,"HRA"),
     "Salary Payable":payable,"Payable Days":salaryGet(r,"Payable Days"),"Absent Days":salaryGet(r,"Absent Days"),"Expense Claim":expense,
     "Allowance":allowance,"System Overtime":overtime,"Total Salary Payable":totalSalary,"Loan Instalment":loan,"PF":pf,"PT":pt,"Food Expense":food,"ESI":esi,"System Fine":fine,"Advance":advance,
-    "Total Deduction":totalDeduction,"Net Payable Amount":Math.round(totalSalary-totalDeduction)
+    "Total Deduction":salaryGet(r,"Total Deduction")!==""?salaryGet(r,"Total Deduction"):totalDeduction,"Net Payable Amount":salaryGet(r,"Net Payable Amount","Net Payable")!==""?salaryGet(r,"Net Payable Amount","Net Payable"): ""
    };
    return {source:r,values};
  });
