@@ -61,6 +61,8 @@ export default function Home(){
  });
  const salaryGroups=salarySites.filter(s=>salarySite==="All sites"||s===salarySite).map(s=>[s,salaryMappedRows.filter(r=>r.values.Site===s)]).filter(([,rows])=>rows.length);
  const salaryNumericColumns=[6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,44];
+ const salaryNumericHeaders=["Basic","DA","HRA","Tax","Total CTC","Due Amount","Payments"];
+ const salarySum=(rows,header)=>rows.reduce((sum,row)=>sum+salaryNum(row.values?.[header]??row.raw_data?.values?.[header]),0);
  const salaryMoney=n=>Number(n||0).toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2});
  const salaryValue=(row,header)=>row.values[header]??"";
  const salaryTotalFor=(rows,header)=>rows.reduce((sum,r)=>sum+salaryNum(r.values[header]),0);
