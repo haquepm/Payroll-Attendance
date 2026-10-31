@@ -73,7 +73,7 @@ export default function Home(){
     n.font={bold:true};n.fill={type:"pattern",pattern:"solid",fgColor:{argb:"FFE8EEF1"}};n.height=23;subtotalRows.push(n.number);  };
   let sn=0;  salaryGroups.forEach(([siteName,rows])=>{
     const first=ws.rowCount+1;
-    rows.forEach(({values})=>{sn++;ws.addRow(salaryColumns.map((h,i)=>h==="S.N."?(values[h]||sn):(values[h]??null))).height=22;});
+     rows.forEach(({values})=>{sn++;const excelValues=salaryColumns.map(h=>{const v=h==="S.N."?(values[h]||sn):(values[h]??null);if(v===null||v===""||h==="Staff ID")return v;if(typeof v==="number"&&Number.isFinite(v))return Math.round(v);if(typeof v==="string"&&/^[₹,\s()-]*-?[\d,]+(?:\.\d+)?[₹,\s]*$/.test(v)){const n=salaryNum(v);return Number.isFinite(n)?Math.round(n):v;}return v;});ws.addRow(excelValues).height=22;});
     const last=ws.rowCount;addSubtotal(siteName+" TOTAL",first,last);ws.addRow([]).height=7;
   });
   const grand=ws.addRow(Array(25).fill(null));grand.getCell(22).value="GRAND TOTAL";
