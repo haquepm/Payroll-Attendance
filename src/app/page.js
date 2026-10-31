@@ -53,7 +53,7 @@ export default function Home(){
     "Total CTC":salaryGet(r,"Total CTC"),"Basic":salaryGet(r,"Basic"),"DA":salaryGet(r,"DA"),"HRA":salaryGet(r,"HRA"),
     "Salary Payable":payable,"Payable Days":salaryGet(r,"Payable Days"),"Absent Days":salaryGet(r,"Absent Days"),"Expense Claim":expense,
     "Allowance":allowance,"System Overtime":overtime,"Total Salary Payable":totalSalary,"Loan Instalment":loan,"PF":pf,"PT":pt,"Food Expense":food,"ESI":esi,"System Fine":fine,"Advance":advance,
-    "Total Deduction":salaryGet(r,"Total Deduction")!==""?salaryGet(r,"Total Deduction"):totalDeduction,"Net Payable Amount":salaryGet(r,"Net Payable Amount","Net Payable","Net Payable (₹)","Net Amount","Due Amount")!==""?salaryGet(r,"Net Payable Amount","Net Payable"): ""
+    "Total Deduction":salaryGet(r,"Total Deduction")!==""?salaryGet(r,"Total Deduction"):totalDeduction,"Net Payable Amount":salaryGet(r,"Net Payable Amount","Net Payable","Net Payable (₹)","Net Amount","Due Amount")
    };
    return {source:r,values};
  });
