@@ -46,7 +46,7 @@ export default function Home(){
  const salaryFilteredRows=salarySourceRows.filter(r=>salarySite==="All sites"||salarySiteOf(r)===salarySite);
  const salaryMappedRows=salaryFilteredRows.map(r=>{const v=r.raw_data?.values||{};
    const basic=salaryNum(salaryGet(r,"Basic")),da=salaryNum(salaryGet(r,"DA")),hra=salaryNum(salaryGet(r,"HRA"));
-   const expense=salaryGet(r,"Expense Claim"),allowance=salaryGet(r,"Allowance","Special Allowance","System Allowance"),overtime=salaryGet(r,"System Overtime");
+   const expense=salaryGet(r,"Expense Claim"),allowance=salaryNum(salaryGet(r,"Special Allowance"))+salaryNum(salaryGet(r,"System Allowance"))+salaryNum(salaryGet(r,"Allowance"))+salaryNum(salaryGet(r,"System Bonus")),overtime=salaryGet(r,"System Overtime");
    const loan=salaryGet(r,"Loan Instalment","Loan Installment"),pf=salaryGet(r,"PF","Provident Fund"),pt=salaryGet(r,"PT","Professional Tax");
    const food=salaryGet(r,"Food Expense"),esi=salaryGet(r,"ESI","Employees State Insurance"),fine=salaryGet(r,"Less Hours","System Fine"),advance=salaryGet(r,"Advance");
    const payable=basic+da+hra;
