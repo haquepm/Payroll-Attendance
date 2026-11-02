@@ -48,7 +48,7 @@ export default function Home(){
    const basic=salaryNum(salaryGet(r,"Basic")),da=salaryNum(salaryGet(r,"DA")),hra=salaryNum(salaryGet(r,"HRA"));
    const expense=salaryGet(r,"Expense Claim"),allowance=salaryGet(r,"Allowance","Special Allowance","System Allowance"),overtime=salaryGet(r,"System Overtime");
    const loan=salaryGet(r,"Loan Instalment","Loan Installment"),pf=salaryGet(r,"PF","Provident Fund"),pt=salaryGet(r,"PT","Professional Tax");
-   const food=salaryGet(r,"Food Expense"),esi=salaryGet(r,"ESI","Employees State Insurance"),fine=salaryGet(r,"System Fine"),advance=salaryGet(r,"Advance");
+   const food=salaryGet(r,"Food Expense"),esi=salaryGet(r,"ESI","Employees State Insurance"),fine=salaryGet(r,"Less Hours","System Fine"),advance=salaryGet(r,"Advance");
    const payable=basic+da+hra;
    const totalSalary=payable+salaryNum(expense)+salaryNum(allowance)+salaryNum(overtime);
    const totalDeduction=salaryNum(loan)+salaryNum(pf)+salaryNum(pt)+salaryNum(food)+salaryNum(esi)+salaryNum(fine)+salaryNum(advance);
