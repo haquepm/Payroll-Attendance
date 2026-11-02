@@ -125,7 +125,7 @@ export default function Home(){
    }
    if(!chosen)throw Error("Could not locate a header row containing Staff ID, Staff Name, Account Number and IFSC Code in the first 15 rows of any worksheet.");
    const {ws,headerRow,idx}=chosen,byId=new Map(employees.map(e=>[String(e.staff_id).trim(),e])),seen=new Set(),rows=[];
-   const readCell=x=>{let v=x.value;if(v&&typeof v==="object"){if(Array.isArray(v.richText))return v.richText.map(z=>z.text||"").join("").trim();if(v.result!==undefined)v=v.result;else if(v.text!==undefined)v=v.text;}if(typeof v==="number"&&Number.isFinite(v))return String(Math.trunc(v));return String(x.text||v??"").trim();};
+   const readCell=x=>{let v=x.value;if(v&&typeof v==="object"){if(Array.isArray(v.richText))return v.richText.map(z=>z.text||"").join("").trim();if(v.result!==undefined)v=v.result;else if(v.text!==undefined)v=v.text;}if(typeof v==="number"&&Number.isFinite(v))return String(Math.trunc(v));return String((x.text||v)??"").trim();};
    ws.eachRow((row,n)=>{if(n<=headerRow)return;const id=readCell(row.getCell(idx.staff+1)),name=readCell(row.getCell(idx.name+1)),account=readCell(row.getCell(idx.account+1)).replace(/[\\s,]/g,"").replace(/\\.0$/,""),ifsc=readCell(row.getCell(idx.ifsc+1)).replace(/\\s/g,"").toUpperCase();if(!id&&!name&&!account&&!ifsc)return;
     const employee=byId.get(id);let issue="";
     if(!id)issue="Missing Staff ID";else if(seen.has(id))issue="Duplicate Staff ID in file";else if(!employee)issue="Staff ID not found in Employee Master";else if(!/^\\d{5,20}$/.test(account))issue="Missing or invalid account number";else if(!/^[A-Z]{4}0[A-Z0-9]{6}$/.test(ifsc))issue="Invalid or missing IFSC";
