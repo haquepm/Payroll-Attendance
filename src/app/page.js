@@ -111,19 +111,29 @@ export default function Home(){
   setErr("");setBankMessage("");setBankImportPreview([]);
   try{
    if(!hasPayrollAccess||!session?.access_token)throw Error("HR/Admin sign-in is required.");
-   const wb=new ExcelJS.Workbook();await wb.xlsx.load(await file.arrayBuffer());const ws=wb.worksheets[0];if(!ws)throw Error("No worksheet found.");
-   const headers=[];ws.getRow(1).eachCell({includeEmpty:true},(c,i)=>headers[i-1]=cell(c.value).trim());
-   const find=(names)=>headers.findIndex(h=>names.includes(norm(h)));
-   const si=find(["staffid"]),ni=find(["staffname","employeename","name"]),ai=find(["accountnumber","bankaccountnumber"]),fi=find(["ifsccode","bankifsccode"]);
-   if([si,ni,ai,fi].some(i=>i<0))throw Error("Required columns: Staff ID, Staff Name, Account Number and IFSC Code.");
-   const byId=new Map(employees.map(e=>[String(e.staff_id).trim(),e])),seen=new Set(),rows=[];
-   ws.eachRow((row,n)=>{if(n===1)return;const id=cell(row.getCell(si+1).value).trim(),name=cell(row.getCell(ni+1).value).trim(),account=cell(row.getCell(ai+1).value).replace(/\s+/g,"").trim(),ifsc=cell(row.getCell(fi+1).value).replace(/\s+/g,"").toUpperCase().trim();if(!id&&!name&&!account&&!ifsc)return;
-    const employee=byId.get(id);let issue="";if(!id)issue="Missing Staff ID";else if(seen.has(id))issue="Duplicate Staff ID in file";else if(!employee)issue="Staff ID not found in Employee Master";else if(!account||!/^\d+$/.test(account))issue="Missing or invalid account number";else if(!/^[A-Z]{4}0[A-Z0-9]{6}$/.test(ifsc))issue="Invalid or missing IFSC";seen.add(id);
-    rows.push({row:n,staff_id:id,name,account_number:account,ifsc_code:ifsc,employee,issue});
+   const wb=new ExcelJS.Workbook();await wb.xlsx.load(await file.arrayBuffer());
+   const headerAliases={staff:["staffid","employeeid","id"],name:["staffname","employeename","name"],account:["accountnumber","bankaccountnumber","accountno","bankaccountno","acnumber","a/cnumber"],ifsc:["ifsccode","bankifsccode","ifsc"]};
+   let chosen=null;
+   for(const ws of wb.worksheets){
+    const max=Math.min(ws.rowCount,15);
+    for(let rn=1;rn<=max;rn++){
+     const row=ws.getRow(rn),headers=[];row.eachCell({includeEmpty:true},(x,i)=>headers[i-1]=norm(x.text||cell(x.value)));
+     const idx=Object.fromEntries(Object.entries(headerAliases).map(([k,aliases])=>[k,headers.findIndex(h=>aliases.includes(h))]));
+     if(Object.values(idx).every(i=>i>=0)){chosen={ws,headerRow:rn,idx};break;}
+    }
+    if(chosen)break;
+   }
+   if(!chosen)throw Error("Could not locate a header row containing Staff ID, Staff Name, Account Number and IFSC Code in the first 15 rows of any worksheet.");
+   const {ws,headerRow,idx}=chosen,byId=new Map(employees.map(e=>[String(e.staff_id).trim(),e])),seen=new Set(),rows=[];
+   const readCell=x=>{let v=x.value;if(v&&typeof v==="object"){if(Array.isArray(v.richText))return v.richText.map(z=>z.text||"").join("").trim();if(v.result!==undefined)v=v.result;else if(v.text!==undefined)v=v.text;}if(typeof v==="number"&&Number.isFinite(v))return String(Math.trunc(v));return String(x.text||v??"").trim();};
+   ws.eachRow((row,n)=>{if(n<=headerRow)return;const id=readCell(row.getCell(idx.staff+1)),name=readCell(row.getCell(idx.name+1)),account=readCell(row.getCell(idx.account+1)).replace(/[\\s,]/g,"").replace(/\\.0$/,""),ifsc=readCell(row.getCell(idx.ifsc+1)).replace(/\\s/g,"").toUpperCase();if(!id&&!name&&!account&&!ifsc)return;
+    const employee=byId.get(id);let issue="";
+    if(!id)issue="Missing Staff ID";else if(seen.has(id))issue="Duplicate Staff ID in file";else if(!employee)issue="Staff ID not found in Employee Master";else if(!/^\\d{5,20}$/.test(account))issue="Missing or invalid account number";else if(!/^[A-Z]{4}0[A-Z0-9]{6}$/.test(ifsc))issue="Invalid or missing IFSC";
+    seen.add(id);rows.push({row:n,staff_id:id,name,account_number:account,ifsc_code:ifsc,employee,issue});
    });
-   if(!rows.length)throw Error("No data rows found.");
+   if(!rows.length)throw Error("No data rows found below the detected header.");
    setBankImportPreview(rows);
-   setBankMessage("Preview ready: "+rows.filter(x=>!x.issue).length+" valid, "+rows.filter(x=>x.issue).length+" need attention. No records have been saved yet.");
+   setBankMessage("Detected worksheet: "+ws.name+" · Header row: "+headerRow+". Preview: "+rows.filter(x=>!x.issue).length+" valid, "+rows.filter(x=>x.issue).length+" need attention. No records saved yet.");
   }catch(e){setErr("Bank details file could not be read: "+e.message);}
  }
  async function confirmBankDetailsImport(){
