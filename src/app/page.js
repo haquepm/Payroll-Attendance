@@ -256,7 +256,7 @@ const missingFiltered=missingRows.map(x=>{const inDates=splitDates(x.missedInDat
   try{
    setErr("");
    const issued=await ensureIssuedSlip();
-   const message="Dear "+staffName+", your Crescent Contractors salary slip for "+monthLabel+" is ready.\n\n📥 DOWNLOAD YOUR SALARY SLIP\n"+issued.downloadUrl+"\n\n🔐 Verify authenticity: "+issued.verifyUrl+"\nDocument ID: "+issued.documentId;
+   const message="Dear "+staffName+", your Crescent Contractors salary slip for "+monthLabel+" is ready.\n\n📥 DOWNLOAD YOUR SALARY SLIP\n"+issued.downloadUrl+"\n\nDocument ID: "+issued.documentId;
    waWindow.location.href="https://wa.me/"+phone+"?text="+encodeURIComponent(message);
   }catch(e){waWindow.close();setErr(e.message||"Could not prepare the WhatsApp message.");}
  };
