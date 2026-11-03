@@ -15,7 +15,7 @@ const fmt = m => Math.floor(m/60)+"h "+String(m%60).padStart(2,"0")+"m";
 const mins = t => { const m=String(t).trim().match(/^(\d{1,2}):(\d{2})$/); return m ? +m[1]*60+(+m[2]) : null; };
 
 export default function Home(){
- const [tab,setTab]=useState("Overview"),[employees,setEmployees]=useState([]),[report,setReport]=useState([]),[source,setSource]=useState(""),[busy,setBusy]=useState(false),[err,setErr]=useState(""),[from,setFrom]=useState(""),[to,setTo]=useState(""),[site,setSite]=useState("All sites"),[person,setPerson]=useState("All employees"),[masterBusy,setMasterBusy]=useState(false),[masterSearch,setMasterSearch]=useState(""),[editEmployee,setEditEmployee]=useState(null),[newEmployee,setNewEmployee]=useState({staff_id:"",employee_name:"",gender:"Male"}),[masterMessage,setMasterMessage]=useState(""),[missingRows,setMissingRows]=useState([]),[missingSource,setMissingSource]=useState(""),[missingBusy,setMissingBusy]=useState(false),[missingFrom,setMissingFrom]=useState(""),[missingTo,setMissingTo]=useState(""),[missingSite,setMissingSite]=useState("All sites"),[missingPerson,setMissingPerson]=useState("All employees"),[shortagePage,setShortagePage]=useState(0),[session,setSession]=useState(null),[authReady,setAuthReady]=useState(false),[authEmail,setAuthEmail]=useState(""),[authPassword,setAuthPassword]=useState(""),[authBusy,setAuthBusy]=useState(false),[authError,setAuthError]=useState(""),[profile,setProfile]=useState(null),[payrollBatches,setPayrollBatches]=useState([]),[payrollRows,setPayrollRows]=useState([]),[payrollSearch,setPayrollSearch]=useState(""),[selectedBatch,setSelectedBatch]=useState("All imports"),[payrollBusy,setPayrollBusy]=useState(false),[payrollMessage,setPayrollMessage]=useState(""),[salarySite,setSalarySite]=useState("All sites"),[salaryBatch,setSalaryBatch]=useState(""),[salarySiteBatch,setSalarySiteBatch]=useState(""),[salaryOfficeBatch,setSalaryOfficeBatch]=useState(""),[salaryMonth,setSalaryMonth]=useState("2026-09"),[officePtDrafts,setOfficePtDrafts]=useState({}),[officePtBusy,setOfficePtBusy]=useState(false),[payslipEmployeeId,setPayslipEmployeeId]=useState(""),[leaveAdjustments,setLeaveAdjustments]=useState([]),[leaveBusy,setLeaveBusy]=useState(false),[leaveEmployeeId,setLeaveEmployeeId]=useState(""),[leaveDate,setLeaveDate]=useState(""),[leaveType,setLeaveType]=useState("half_day"),[leaveStatus,setLeaveStatus]=useState("pending"),[bankDetails,setBankDetails]=useState([]),[bankBatches,setBankBatches]=useState([]),[bankBusy,setBankBusy]=useState(false),[bankMessage,setBankMessage]=useState(""),[bankImportPreview,setBankImportPreview]=useState([]),[bankEditEmployeeId,setBankEditEmployeeId]=useState(null);
+ const [tab,setTab]=useState("Overview"),[employees,setEmployees]=useState([]),[report,setReport]=useState([]),[source,setSource]=useState(""),[busy,setBusy]=useState(false),[err,setErr]=useState(""),[from,setFrom]=useState(""),[to,setTo]=useState(""),[site,setSite]=useState("All sites"),[person,setPerson]=useState("All employees"),[masterBusy,setMasterBusy]=useState(false),[masterSearch,setMasterSearch]=useState(""),[editEmployee,setEditEmployee]=useState(null),[newEmployee,setNewEmployee]=useState({staff_id:"",employee_name:"",gender:"Male"}),[masterMessage,setMasterMessage]=useState(""),[missingRows,setMissingRows]=useState([]),[missingSource,setMissingSource]=useState(""),[missingBusy,setMissingBusy]=useState(false),[missingFrom,setMissingFrom]=useState(""),[missingTo,setMissingTo]=useState(""),[missingSite,setMissingSite]=useState("All sites"),[missingPerson,setMissingPerson]=useState("All employees"),[shortagePage,setShortagePage]=useState(0),[session,setSession]=useState(null),[authReady,setAuthReady]=useState(false),[authEmail,setAuthEmail]=useState(""),[authPassword,setAuthPassword]=useState(""),[authBusy,setAuthBusy]=useState(false),[authError,setAuthError]=useState(""),[profile,setProfile]=useState(null),[payrollBatches,setPayrollBatches]=useState([]),[payrollRows,setPayrollRows]=useState([]),[payrollSearch,setPayrollSearch]=useState(""),[selectedBatch,setSelectedBatch]=useState("All imports"),[payrollBusy,setPayrollBusy]=useState(false),[payrollMessage,setPayrollMessage]=useState(""),[salarySite,setSalarySite]=useState("All sites"),[salaryBatch,setSalaryBatch]=useState(""),[salarySiteBatch,setSalarySiteBatch]=useState(""),[salaryOfficeBatch,setSalaryOfficeBatch]=useState(""),[salaryMonth,setSalaryMonth]=useState("2026-09"),[officePtDrafts,setOfficePtDrafts]=useState({}),[officePtBusy,setOfficePtBusy]=useState(false),[payslipEmployeeId,setPayslipEmployeeId]=useState(""), [issuedPayslips,setIssuedPayslips]=useState({}),[leaveAdjustments,setLeaveAdjustments]=useState([]),[leaveBusy,setLeaveBusy]=useState(false),[leaveEmployeeId,setLeaveEmployeeId]=useState(""),[leaveDate,setLeaveDate]=useState(""),[leaveType,setLeaveType]=useState("half_day"),[leaveStatus,setLeaveStatus]=useState("pending"),[bankDetails,setBankDetails]=useState([]),[bankBatches,setBankBatches]=useState([]),[bankBusy,setBankBusy]=useState(false),[bankMessage,setBankMessage]=useState(""),[bankImportPreview,setBankImportPreview]=useState([]),[bankEditEmployeeId,setBankEditEmployeeId]=useState(null);
  useEffect(()=>{if(!supabase){setAuthReady(true);return;}let alive=true;supabase.auth.getSession().then(({data})=>{if(alive)setSession(data.session);}).catch(e=>{if(alive)setAuthError(e.message);}).finally(()=>{if(alive)setAuthReady(true);});const {data:{subscription}}=supabase.auth.onAuthStateChange((_event,next)=>{setSession(next);if(!next)setProfile(null);});return()=>{alive=false;subscription.unsubscribe();};},[]);
  useEffect(()=>{let alive=true;async function loadProfile(){if(!session?.user){setProfile(null);return;}const {data,error}=await supabase.from("user_profiles").select("role,is_active,full_name").eq("user_id",session.user.id).maybeSingle();if(!alive)return;if(error){setAuthError("Could not verify HR access: "+error.message);setProfile(null);return;}setProfile(data||null);}loadProfile();return()=>{alive=false;};},[session]);
  async function payrollSignIn(e){e.preventDefault();setAuthBusy(true);setAuthError("");try{if(!supabase)throw Error("Supabase environment variables are not configured in Vercel.");const {error}=await supabase.auth.signInWithPassword({email:authEmail.trim(),password:authPassword});if(error)throw error;setAuthPassword("");}catch(e){setAuthError(e.message||"Sign-in failed.");}finally{setAuthBusy(false);}}
@@ -219,22 +219,46 @@ const missingFiltered=missingRows.map(x=>{const inDates=splitDates(x.missedInDat
   (autoPrint?"":"<div class='preview-note'>Preview only — a unique Document ID and verification QR will be issued when printed.</div>")+
   "<div class='footer'>Generated through Crescent Payroll Software</div></main>"+"</body></html>";
  };
- const printSlip=async()=>{
-  const w=window.open("","_blank","width=1200,height=900");
-  if(!w){setErr("Allow pop-ups to print the payslip.");return;}
-  if(!supabase||!session?.access_token){w.close();setErr("Please sign in with an active HR/Admin account to issue a verified salary slip.");return;}
-  setErr("");
+ const slipKey=String(record.source.id)+"-"+String(salaryMonth||"");
+ const ensureIssuedSlip=async()=>{
+  if(issuedPayslips[slipKey])return issuedPayslips[slipKey];
+  if(!supabase||!session?.access_token)throw Error("Please sign in with an active HR/Admin account to issue a verified salary slip.");
   const suffix=(typeof crypto!=="undefined"&&crypto.randomUUID?crypto.randomUUID().replace(/-/g,"").slice(0,12):Math.random().toString(16).slice(2,14)).toUpperCase();
   const documentId="CCSL-"+String(salaryMonth||"").replace("-","")+"-"+suffix;
   const verifyUrl=window.location.origin+"/verify?id="+encodeURIComponent(documentId);
   const issuedAt=new Date().toLocaleString("en-IN",{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"});
   const {error}=await supabase.rpc("register_salary_slip",{p_document_id:documentId,p_employee_name:staffName,p_staff_id:staffId,p_salary_month:monthLabel,p_net_payable:salaryNum(v["Net Payable Amount"])});
-  if(error){w.close();setErr("Salary slip could not be registered for QR verification: "+error.message);return;}
-  w.addEventListener("load",()=>setTimeout(()=>w.print(),500),{once:true});w.document.open();w.document.write(slipHtml(documentId,verifyUrl,issuedAt,true));w.document.close();
+  if(error)throw Error("Salary slip could not be registered for QR verification: "+error.message);
+  const issued={documentId,verifyUrl,issuedAt};
+  setIssuedPayslips(prev=>({...prev,[slipKey]:issued}));
+  return issued;
+ };
+ const printSlip=async()=>{
+  const frame=document.getElementById("payslip-preview-frame");
+  if(!frame){setErr("Payslip print area is unavailable. Refresh the page and try again.");return;}
+  try{
+   setErr("");
+   const issued=await ensureIssuedSlip();
+   const doc=frame.contentDocument||frame.contentWindow?.document;
+   if(!doc)throw Error("Could not access the payslip print area.");
+   doc.open();doc.write(slipHtml(issued.documentId,issued.verifyUrl,issued.issuedAt,true));doc.close();
+   setTimeout(()=>{frame.contentWindow.focus();frame.contentWindow.print();},650);
+  }catch(e){setErr(e.message||"Could not prepare the payslip for printing.");}
+ };
+ const shareSlipWhatsApp=async()=>{
+  const phoneInput=document.getElementById("payslip-whatsapp-number");
+  const phone=String(phoneInput?.value||"").replace(/\D/g,"");
+  if(phone.length<10||phone.length>15){setErr("Enter the employee's WhatsApp number with country code (for India, start with 91).");phoneInput?.focus();return;}
+  try{
+   setErr("");
+   const issued=await ensureIssuedSlip();
+   const message="Dear "+staffName+", your Crescent Contractors salary slip for "+monthLabel+" is ready.\nDocument ID: "+issued.documentId+"\nVerify authenticity: "+issued.verifyUrl;
+   window.open("https://wa.me/"+phone+"?text="+encodeURIComponent(message),"_blank","noopener,noreferrer");
+  }catch(e){setErr(e.message||"Could not prepare the WhatsApp message.");}
  };
  const previewId="CCSL-"+String(salaryMonth||"").replace("-","")+"-PREVIEW";
  const previewUrl=(typeof window!=="undefined"?window.location.origin:"")+"/verify?id="+encodeURIComponent(previewId);
- return <div style={{marginTop:18,background:"#0b1c26",border:"1px solid #36515f",borderRadius:12,padding:18}}><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:12,flexWrap:"wrap",marginBottom:12}}><h3 style={{margin:0}}>Payslip Preview</h3><button onClick={printSlip} style={{background:"#d5a84e",color:"#101820",border:0,borderRadius:8,padding:"10px 16px",fontWeight:700}}>Print / Save as PDF</button></div><iframe title="Salary slip design preview" srcDoc={slipHtml(previewId,previewUrl,"Issued when printed",false)} style={{width:"100%",height:760,border:0,borderRadius:8,background:"#fff"}} /></div>;
+ return <div style={{marginTop:18,background:"#0b1c26",border:"1px solid #36515f",borderRadius:12,padding:18}}><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:12,flexWrap:"wrap",marginBottom:12}}><h3 style={{margin:0}}>Payslip Preview</h3><button onClick={printSlip} style={{background:"#d5a84e",color:"#101820",border:0,borderRadius:8,padding:"10px 16px",fontWeight:700}}>Print / Save as PDF</button></div><div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap",marginBottom:12}}><label style={{fontSize:13}}>Employee WhatsApp number <input id="payslip-whatsapp-number" type="tel" inputMode="numeric" placeholder="91XXXXXXXXXX" style={{padding:9,minWidth:190,marginLeft:6}}/></label><button type="button" onClick={shareSlipWhatsApp} style={{background:"#168b52",color:"#fff",border:0,borderRadius:8,padding:"10px 16px",fontWeight:700}}>Share via WhatsApp</button><small style={{color:"#9fb1bf"}}>Shares the secure verification link; enter country code with the number.</small></div><iframe id="payslip-preview-frame" title="Salary slip design preview" srcDoc={slipHtml(previewId,previewUrl,"Issued when printed",false)} style={{width:"100%",height:760,border:0,borderRadius:8,background:"#fff"}} /></div>;
  })()}
  </section>}
  {!["Overview","Employee Master","Shortage Report","Payroll Import","Salary Bill","Bank Sheet","Payslips"].includes(tab)&&<section style={panel}><h2>{tab}</h2><p>This module remains in the portal navigation. This release is focused on the PagarBook-format Shortage Report.</p></section>}
