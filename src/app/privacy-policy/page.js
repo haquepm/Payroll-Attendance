@@ -251,30 +251,6 @@ export default function PrivacyPolicyPage() {
         </footer>
       </article>
 
-      <style jsx>{`
-        .policy-shell{min-height:100vh;background:#f3f6fa;padding:32px 18px 56px;color:#172b3a;font-family:Arial,Helvetica,sans-serif}
-        .policy-card{max-width:920px;margin:0 auto;background:#fff;border:1px solid #e1e7ee;border-radius:14px;padding:36px 48px 42px;box-shadow:0 8px 28px rgba(20,42,60,.07)}
-        .policy-back{display:inline-block;color:#1769aa;text-decoration:none;font-size:14px;font-weight:600;margin-bottom:28px}
-        .policy-back:hover,.policy-section a:hover{text-decoration:underline}
-        .policy-header{border-bottom:1px solid #e4eaf0;padding-bottom:26px;margin-bottom:28px}
-        .policy-brand{font-size:12px;letter-spacing:1.5px;font-weight:700;color:#64798a;margin-bottom:12px}
-        h1{font-size:34px;line-height:1.2;margin:0 0 8px;color:#102b40}
-        .policy-subtitle{font-size:17px;color:#536879;margin:0 0 18px}
-        .policy-meta{display:flex;flex-wrap:wrap;gap:8px 24px;color:#718292;font-size:12px}
-        .policy-section{margin:0 0 26px}
-        .policy-section h2{font-size:19px;color:#153d59;margin:0 0 12px;padding-bottom:8px;border-bottom:1px solid #edf1f5}
-        .policy-section h3{font-size:15px;color:#294c65;margin:18px 0 7px}
-        .policy-section p{font-size:14px;line-height:1.75;color:#344b5c;margin:0 0 10px}
-        .policy-list{padding-left:23px;margin:7px 0 13px}
-        .policy-list li{font-size:14px;line-height:1.7;color:#344b5c;padding-left:4px;margin:3px 0}
-        .policy-section a,.policy-contact a,.policy-footer a{color:#1769aa;text-decoration:none}
-        .policy-contact{font-style:normal;display:flex;flex-direction:column;gap:9px;padding:17px 19px;background:#f6f9fc;border:1px solid #e4ebf2;border-radius:9px;color:#344b5c;font-size:14px;line-height:1.6}
-        .policy-contact strong{color:#173c56;font-size:15px;margin-bottom:3px}
-        .policy-footer{border-top:1px solid #e4eaf0;padding-top:22px;margin-top:34px;display:flex;flex-direction:column;gap:7px;color:#718292;font-size:12px}
-        .policy-footer strong{color:#294c65;letter-spacing:.5px}
-        @media(max-width:640px){.policy-shell{padding:12px 8px 28px}.policy-card{padding:22px 18px 28px;border-radius:10px}h1{font-size:28px}.policy-subtitle{font-size:15px}.policy-section h2{font-size:17px}.policy-section p,.policy-list li{font-size:13px}.policy-meta{flex-direction:column;gap:6px}}
-        @media print{.policy-shell{background:#fff;padding:0}.policy-card{max-width:none;border:0;box-shadow:none;padding:0}.policy-back{display:none}.policy-section{break-inside:avoid}.policy-header{break-after:avoid}}
-      `}</style>
     </main>
   );
 }
