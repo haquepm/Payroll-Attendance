@@ -53,5 +53,6 @@ as $$
   limit 1;
 $$;
 
+revoke all on function public.register_salary_slip(text,text,text,text,numeric) from public, anon;
 grant execute on function public.register_salary_slip(text,text,text,text,numeric) to authenticated;
 grant execute on function public.verify_salary_slip(text) to anon, authenticated;
