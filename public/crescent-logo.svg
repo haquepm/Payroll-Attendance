@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 300" role="img" aria-label="Crescent Contractors Pvt. Ltd.">
+<g>
+<path fill="#F39200" d="M22 58 112 142 112 267 22 267Z"/>
+<path fill="#F39200" d="M130 145 184 193 184 267 130 267Z"/>
+<path fill="#0872B9" d="M188 267V53L260 0V267Z"/>
+<path fill="#0872B9" d="M275 267V65L347 132V267Z"/>
+<path fill="#0872B9" d="M365 267V132L435 65V267Z"/>
+<path fill="#F39200" d="M275 267V170L347 218V267Z"/>
+<path fill="#F39200" d="M365 267V218L435 170V267Z"/>
+<path fill="none" stroke="#F39200" stroke-width="5" d="M20 285H980"/>
+</g>
+<text x="462" y="178" fill="#0872B9" font-family="Impact,'Arial Narrow',Arial,sans-serif" font-size="112" font-weight="900" letter-spacing="-3">CRESCENT</text>
+<text x="465" y="248" fill="#F39200" font-family="Arial,sans-serif" font-size="45" font-weight="700" letter-spacing="-1">CONTRACTORS PVT. LTD.</text>
+</svg>
