@@ -223,13 +223,15 @@ const missingFiltered=missingRows.map(x=>{const inDates=splitDates(x.missedInDat
  const ensureIssuedSlip=async()=>{
   if(issuedPayslips[slipKey])return issuedPayslips[slipKey];
   if(!supabase||!session?.access_token)throw Error("Please sign in with an active HR/Admin account to issue a verified salary slip.");
-  const suffix=(typeof crypto!=="undefined"&&crypto.randomUUID?crypto.randomUUID().replace(/-/g,"").slice(0,12):Math.random().toString(16).slice(2,14)).toUpperCase();
-  const documentId="CCSL-"+String(salaryMonth||"").replace("-","")+"-"+suffix;
-  const verifyUrl=window.location.origin+"/verify?id="+encodeURIComponent(documentId);
-  const issuedAt=new Date().toLocaleString("en-IN",{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"});
-  const {error}=await supabase.rpc("register_salary_slip",{p_document_id:documentId,p_employee_name:staffName,p_staff_id:staffId,p_salary_month:monthLabel,p_net_payable:salaryNum(v["Net Payable Amount"])});
-  if(error)throw Error("Salary slip could not be registered for QR verification: "+error.message);
-  const issued={documentId,verifyUrl,issuedAt};
+  const {data,error}=await supabase.functions.invoke("generate-salary-slip",{body:{
+   employeeName:staffName,staffId,salaryMonth,monthLabel,netPayable:salaryNum(v["Net Payable Amount"]),
+   meta:{site:v.Site,designation:v.Designation,dateOfJoining:v["Date of Joining"],payableDays:v["Payable Days"],absentDays:v["Absent Days"],totalCtc:v["Total CTC"],totalSalaryPayable:v["Total Salary Payable"],totalDeduction:v["Total Deduction"]},
+   earnings:earnings.map(([label,value])=>({label,value:salaryNum(value)})),
+   deductions:deductions.map(([label,value])=>({label,value:salaryNum(value)}))
+  }});
+  if(error)throw Error(data?.error||error.message||"Could not generate the secure salary slip PDF.");
+  if(!data?.documentId||!data?.downloadUrl||!data?.verifyUrl)throw Error("Salary slip service returned incomplete download details.");
+  const issued={documentId:data.documentId,verifyUrl:data.verifyUrl,issuedAt:data.issuedAt,downloadUrl:data.downloadUrl,fileName:data.fileName,expiresInSeconds:data.expiresInSeconds};
   setIssuedPayslips(prev=>({...prev,[slipKey]:issued}));
   return issued;
  };
@@ -254,13 +256,14 @@ const missingFiltered=missingRows.map(x=>{const inDates=splitDates(x.missedInDat
   try{
    setErr("");
    const issued=await ensureIssuedSlip();
-   const message="Dear "+staffName+", your Crescent Contractors salary slip for "+monthLabel+" is ready.\nDocument ID: "+issued.documentId+"\nVerify authenticity: "+issued.verifyUrl;
+   const expiryText="This secure download link expires in 7 days.";
+   const message="Dear "+staffName+", your Crescent Contractors salary slip for "+monthLabel+" is ready.\nDocument ID: "+issued.documentId+"\nDownload Salary Slip (PDF): "+issued.downloadUrl+"\nVerify authenticity: "+issued.verifyUrl+"\n"+expiryText;
    waWindow.location.href="https://wa.me/"+phone+"?text="+encodeURIComponent(message);
   }catch(e){waWindow.close();setErr(e.message||"Could not prepare the WhatsApp message.");}
  };
  const previewId="CCSL-"+String(salaryMonth||"").replace("-","")+"-PREVIEW";
  const previewUrl=(typeof window!=="undefined"?window.location.origin:"")+"/verify?id="+encodeURIComponent(previewId);
- return <div style={{marginTop:18,background:"#0b1c26",border:"1px solid #36515f",borderRadius:12,padding:18}}><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:12,flexWrap:"wrap",marginBottom:12}}><h3 style={{margin:0}}>Payslip Preview</h3><button onClick={printSlip} style={{background:"#d5a84e",color:"#101820",border:0,borderRadius:8,padding:"10px 16px",fontWeight:700}}>Print / Save as PDF</button></div><div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap",marginBottom:12}}><label style={{fontSize:13}}>Employee WhatsApp number <input id="payslip-whatsapp-number" type="tel" inputMode="numeric" placeholder="91XXXXXXXXXX" style={{padding:9,minWidth:190,marginLeft:6}}/></label><button type="button" onClick={shareSlipWhatsApp} style={{background:"#168b52",color:"#fff",border:0,borderRadius:8,padding:"10px 16px",fontWeight:700}}>Share via WhatsApp</button><small style={{color:"#9fb1bf"}}>Shares the secure verification link; enter country code with the number.</small></div><iframe id="payslip-preview-frame" title="Salary slip design preview" srcDoc={slipHtml(previewId,previewUrl,"Issued when printed",false)} style={{width:"100%",height:760,border:0,borderRadius:8,background:"#fff"}} /></div>;
+ return <div style={{marginTop:18,background:"#0b1c26",border:"1px solid #36515f",borderRadius:12,padding:18}}><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:12,flexWrap:"wrap",marginBottom:12}}><h3 style={{margin:0}}>Payslip Preview</h3><button onClick={printSlip} style={{background:"#d5a84e",color:"#101820",border:0,borderRadius:8,padding:"10px 16px",fontWeight:700}}>Print / Save as PDF</button></div><div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap",marginBottom:12}}><label style={{fontSize:13}}>Employee WhatsApp number <input id="payslip-whatsapp-number" type="tel" inputMode="numeric" placeholder="91XXXXXXXXXX" style={{padding:9,minWidth:190,marginLeft:6}}/></label><button type="button" onClick={shareSlipWhatsApp} style={{background:"#168b52",color:"#fff",border:0,borderRadius:8,padding:"10px 16px",fontWeight:700}}>Share PDF via WhatsApp</button>{issuedPayslips[slipKey]?.downloadUrl&&<a href={issuedPayslips[slipKey].downloadUrl} target="_blank" rel="noopener noreferrer" style={{background:"#d5a84e",color:"#101820",borderRadius:8,padding:"10px 16px",fontWeight:700,textDecoration:"none"}}>Download PDF</a>}<small style={{color:"#9fb1bf"}}>Secure PDF link expires after 7 days.</small></div><iframe id="payslip-preview-frame" title="Salary slip design preview" srcDoc={slipHtml(previewId,previewUrl,"Issued when printed",false)} style={{width:"100%",height:760,border:0,borderRadius:8,background:"#fff"}} /></div>;
  })()}
  </section>}
  {!["Overview","Employee Master","Shortage Report","Payroll Import","Salary Bill","Bank Sheet","Payslips"].includes(tab)&&<section style={panel}><h2>{tab}</h2><p>This module remains in the portal navigation. This release is focused on the PagarBook-format Shortage Report.</p></section>}
