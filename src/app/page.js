@@ -230,7 +230,7 @@ const missingFiltered=missingRows.map(x=>{const inDates=splitDates(x.missedInDat
   const issuedAt=new Date().toLocaleString("en-IN",{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"});
   const {error}=await supabase.rpc("register_salary_slip",{p_document_id:documentId,p_employee_name:staffName,p_staff_id:staffId,p_salary_month:monthLabel,p_net_payable:salaryNum(v["Net Payable Amount"])});
   if(error){w.close();setErr("Salary slip could not be registered for QR verification: "+error.message);return;}
-  w.document.open();w.document.write(slipHtml(documentId,verifyUrl,issuedAt,true));w.document.close();
+  w.onload=()=>setTimeout(()=>w.print(),500);w.document.open();w.document.write(slipHtml(documentId,verifyUrl,issuedAt,true));w.document.close();
  };
  const previewId="CCSL-"+String(salaryMonth||"").replace("-","")+"-PREVIEW";
  const previewUrl=(typeof window!=="undefined"?window.location.origin:"")+"/verify?id="+encodeURIComponent(previewId);
