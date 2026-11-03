@@ -221,7 +221,7 @@ const missingFiltered=missingRows.map(x=>{const inDates=splitDates(x.missedInDat
  };
  const slipKey=String(record.source.id)+"-"+String(salaryMonth||"");
  const ensureIssuedSlip=async()=>{
-  if(issuedPayslips[slipKey])return issuedPayslips[slipKey];
+  if(issuedPayslips[slipKey]?.expiresAt>Date.now())return issuedPayslips[slipKey];
   if(!supabase||!session?.access_token)throw Error("Please sign in with an active HR/Admin account to issue a verified salary slip.");
   const {data,error}=await supabase.functions.invoke("generate-salary-slip",{body:{
    employeeName:staffName,staffId,salaryMonth,monthLabel,netPayable:salaryNum(v["Net Payable Amount"]),
@@ -231,7 +231,7 @@ const missingFiltered=missingRows.map(x=>{const inDates=splitDates(x.missedInDat
   }});
   if(error)throw Error(data?.error||error.message||"Could not generate the secure salary slip PDF.");
   if(!data?.documentId||!data?.downloadUrl||!data?.verifyUrl)throw Error("Salary slip service returned incomplete download details.");
-  const issued={documentId:data.documentId,verifyUrl:data.verifyUrl,issuedAt:data.issuedAt,downloadUrl:data.downloadUrl,fileName:data.fileName,expiresInSeconds:data.expiresInSeconds};
+  const issued={documentId:data.documentId,verifyUrl:data.verifyUrl,issuedAt:data.issuedAt,downloadUrl:data.downloadUrl,fileName:data.fileName,expiresInSeconds:data.expiresInSeconds,expiresAt:Date.now()+Number(data.expiresInSeconds||604800)*1000};
   setIssuedPayslips(prev=>({...prev,[slipKey]:issued}));
   return issued;
  };
