@@ -217,7 +217,7 @@ const missingFiltered=missingRows.map(x=>{const inDates=splitDates(x.missedInDat
   "<section class='net'>Net Payable Amount: ₹"+esc(money(v["Net Payable Amount"]))+"</section>"+
   "<section class='verify'><img class='qr' src='"+qrUrl+"' alt='QR code to verify salary slip'><div><div class='verify-title'>✓ &nbsp; Verify this Salary Slip</div><div class='verify-copy'>Scan the QR code or visit<br><a href='"+esc(verifyUrl)+"'>"+esc(verifyUrl)+"</a><br>to verify the authenticity of this document.</div></div><div class='verify-meta'><div><b>Document ID</b> : "+esc(documentId)+"</div><div><b>Salary Month</b> : "+esc(monthLabel)+"</div><div><b>Issued On</b> : "+esc(issuedAt)+"</div></div></section>"+
   (autoPrint?"":"<div class='preview-note'>Preview only — a unique Document ID and verification QR will be issued when printed.</div>")+
-  "<div class='footer'>Generated through Crescent Payroll Software</div></main>"+(autoPrint?"<script>window.onload=()=>setTimeout(()=>window.print(),500)<\\/script>":"")+"</body></html>";
+  "<div class='footer'>Generated through Crescent Payroll Software</div></main>"+"</body></html>";
  };
  const printSlip=async()=>{
   const w=window.open("","_blank","width=1200,height=900");
