@@ -224,7 +224,7 @@ const missingFiltered=missingRows.map(x=>{const inDates=splitDates(x.missedInDat
   if(!w){setErr("Allow pop-ups to print the payslip.");return;}
   if(!supabase||!session?.access_token){w.close();setErr("Please sign in with an active HR/Admin account to issue a verified salary slip.");return;}
   setErr("");
-  const suffix=(typeof crypto!=="undefined"&&crypto.randomUUID?crypto.randomUUID().replace(/-/g,"").slice(0,8):Math.random().toString(16).slice(2,10)).toUpperCase();
+  const suffix=(typeof crypto!=="undefined"&&crypto.randomUUID?crypto.randomUUID().replace(/-/g,"").slice(0,12):Math.random().toString(16).slice(2,14)).toUpperCase();
   const documentId="CCSL-"+String(salaryMonth||"").replace("-","")+"-"+suffix;
   const verifyUrl=window.location.origin+"/verify?id="+encodeURIComponent(documentId);
   const issuedAt=new Date().toLocaleString("en-IN",{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"});
