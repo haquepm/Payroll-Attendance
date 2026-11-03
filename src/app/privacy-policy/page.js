@@ -1,5 +1,3 @@
-"use client";
-
 const sections = [
   {
     title: "1. Introduction",
