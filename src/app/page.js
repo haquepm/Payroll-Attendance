@@ -70,10 +70,10 @@ export default function Home(){
    return {source:r,values};
  });
  const salaryGroups=salarySites.filter(s=>salarySite==="All sites"||s===salarySite).map(s=>[s,salaryMappedRows.filter(r=>r.values.Site===s)]).filter(([,rows])=>rows.length);
- const salarySum=(rows,header)=>rows.reduce((sum,row)=>sum+salaryNum(row.values?.[header]),0);
+ const salarySum=(rows,header)=>rows.reduce((sum,row)=>sum+(header==="Net Payable Amount"?Math.round(salaryNum(row.values?.[header])):salaryNum(row.values?.[header])),0);
  const salaryMoney=n=>Math.round(Number(n)||0).toLocaleString("en-IN",{maximumFractionDigits:0});
   const salaryDisplay=v=>{if(v===null||v===undefined||v==="")return v;const n=typeof v==="number"?v:(typeof v==="string"&&/^[₹,\s()-]*-?[\d,]+(?:\.\d+)?[₹,\s]*$/.test(v)?salaryNum(v):NaN);return Number.isFinite(n)?Math.round(n).toLocaleString("en-IN",{maximumFractionDigits:0}):v;};
- const salaryTotalFor=(rows,header)=>rows.reduce((sum,r)=>sum+salaryNum(r.values[header]),0);
+ const salaryTotalFor=(rows,header)=>rows.reduce((sum,r)=>sum+(header==="Net Payable Amount"?Math.round(salaryNum(r.values[header])):salaryNum(r.values[header])),0);
  async function exportSalaryExcel(){
   if(!salaryMappedRows.length)return;
   const wb=new ExcelJS.Workbook(),ws=wb.addWorksheet("Regular Staff");
