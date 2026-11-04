@@ -120,7 +120,7 @@ export default function Home(){
   try{
    if(!hasBankAccess||!session?.access_token)throw Error("An active Accounts, HR or Admin sign-in is required.");
    const wb=new ExcelJS.Workbook();await wb.xlsx.load(await file.arrayBuffer());
-   const headerAliases={staff:["staffid","employeeid","id"],name:["staffname","employeename","name"],beneficiary:["beneficiaryname","account holder name","accountname","bankaccountname","nameofaccount","beneficiary"],account:["accountnumber","bankaccountnumber","accountno","bankaccountno","acnumber","a/cnumber"],ifsc:["ifsccode","bankifsccode","ifsc"]};
+   const headerAliases={staff:["staffid","employeeid","id"],name:["staffname","employeename","name"],beneficiary:["beneficiaryname","accountholdername","accountname","bankaccountname","nameofaccount","beneficiary"],account:["accountnumber","bankaccountnumber","accountno","bankaccountno","acnumber","a/cnumber"],ifsc:["ifsccode","bankifsccode","ifsc"]};
    let chosen=null;
    for(const ws of wb.worksheets){
     const max=Math.min(ws.rowCount,15);
