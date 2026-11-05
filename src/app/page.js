@@ -254,16 +254,17 @@ const missingFiltered=missingRows.map(x=>{const inDates=splitDates(x.missedInDat
  };
  const shareSlipWhatsApp=async()=>{
   const phoneInput=document.getElementById("payslip-whatsapp-number");
-  const phone=String(phoneInput?.value||"").replace(/\D/g,"");
+  const phone=String(phoneInput?.value||"").replace(/\\D/g,"");
   if(phone.length<10||phone.length>15){setErr("Enter the employee's WhatsApp number with country code (for India, start with 91).");phoneInput?.focus();return;}
-  const waWindow=window.open("about:blank","_blank");
-  if(!waWindow){setErr("Allow pop-ups to open WhatsApp sharing.");return;}
+  if(!supabase||!session?.access_token){setErr("Sign in with an active HR/Admin account before sending.");return;}
   try{
    setErr("");
    const issued=await ensureIssuedSlip();
-   const message="Dear "+staffName+", your Crescent Contractors salary slip for "+monthLabel+" is ready.\n\n📥 DOWNLOAD YOUR SALARY SLIP\n"+issued.downloadUrl+"\n\nDocument ID: "+issued.documentId;
-   waWindow.location.href="https://wa.me/"+phone+"?text="+encodeURIComponent(message);
-  }catch(e){waWindow.close();setErr(e.message||"Could not prepare the WhatsApp message.");}
+   const {data,error}=await supabase.functions.invoke("send-salary-slip-whatsapp",{body:{documentId:issued.documentId,recipientPhone:phone}});
+   if(error)throw Error(data?.error||error.message||"WhatsApp sending failed.");
+   if(data?.error)throw Error(data.error);
+   setErr("WhatsApp salary slip accepted by Meta. Message ID: "+data.messageId);
+  }catch(e){setErr(e.message||"Could not send the salary slip through WhatsApp.");}
  };
  const previewId="CCSL-"+String(salaryMonth||"").replace("-","")+"-PREVIEW";
  const previewUrl=(typeof window!=="undefined"?window.location.origin:"")+"/verify?id="+encodeURIComponent(previewId);
