@@ -261,7 +261,11 @@ const missingFiltered=missingRows.map(x=>{const inDates=splitDates(x.missedInDat
    setErr("");
    const issued=await ensureIssuedSlip();
    const {data,error}=await supabase.functions.invoke("send-salary-slip-whatsapp",{body:{documentId:issued.documentId,recipientPhone:phone}});
-   if(error)throw Error(data?.error||error.message||"WhatsApp sending failed.");
+   if(error){
+    let detail=data?.error||"";
+    try{const response=error.context;if(response&&typeof response.clone==="function"){const payload=await response.clone().json();detail=payload?.error||payload?.message||detail;}}catch(_ignored){}
+    throw Error(detail||error.message||"WhatsApp sending failed.");
+   }
    if(data?.error)throw Error(data.error);
    setErr("WhatsApp salary slip accepted by Meta. Message ID: "+data.messageId);
   }catch(e){setErr(e.message||"Could not send the salary slip through WhatsApp.");}
